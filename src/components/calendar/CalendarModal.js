@@ -5,7 +5,7 @@ import moment from 'moment';
 import Swal from 'sweetalert2'
 import { useDispatch, useSelector } from 'react-redux';
 import { uiCloseModal } from '../../actions/ui';
-import { eventAddNew, eventClearActiveEvent } from '../../actions/events';
+import { eventAddNew, eventClearActiveEvent, eventUpdated } from '../../actions/events';
 
 const customStyles = {
     content : {
@@ -32,8 +32,6 @@ const initEvent = {
 
 export const CalendarModal = () => {
 
-  const [ dateStart, setDateStart ] = useState( now.toDate() );
-  const [ dateEnd, setDateEnd ] = useState( nowPlusOne.toDate() );
   const [titleValid, setTitleValid] = useState(true);
 
   const dispatch = useDispatch();
@@ -67,7 +65,6 @@ export const CalendarModal = () => {
   }
 
   const handleStartDateChange = ( e ) => {
-    setDateStart( e );
     setFormValues({
       ...formValues,
       start: e
@@ -75,7 +72,6 @@ export const CalendarModal = () => {
   }
 
   const handleEndDateChange = ( e ) => {
-    setDateEnd( e );
     setFormValues({
       ...formValues,
       end: e
@@ -96,15 +92,19 @@ export const CalendarModal = () => {
       return setTitleValid(false);
     }
 
-    //TODO: guardar la información en la base de datos
-    dispatch( eventAddNew({
-      ...formValues,
-      id: new Date().getTime(),
-      user: {
-        _id: '12345',
-        name: 'Saul'
-      }
-    }) )
+    if ( activeEvent ){
+      dispatch( eventUpdated( formValues ) )
+    } else {
+      dispatch( eventAddNew({
+        ...formValues,
+        id: new Date().getTime(),
+        user: {
+          _id: '12345',
+          name: 'Saul'
+        }
+      }))
+    }
+
 
     setTitleValid(true);
     closeModal();
